@@ -985,19 +985,28 @@ export class Story {
       const f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion).setY(0).normalize();
       m.show(true);
       m.unfold = 1;
-      m.position.set(cam.position.x + f.x * 0.75, 0, cam.position.z + f.z * 0.75);
-      m.root.rotation.y = Math.atan2(-f.x, -f.z);
       m.mode = 'lunge';
       m.speed = 0;
+      m.root.rotation.y = Math.atan2(-f.x, -f.z);
+      m.position.set(cam.position.x, 0, cam.position.z);
+      m.update(0.016);
+      m.root.updateMatrixWorld(true);
+      // it folds down so that grin is right in your face
+      const hw = m.headWorld();
+      const reach = -((hw.x - m.position.x) * f.x + (hw.z - m.position.z) * f.z); // head leans toward you
+      const drop = hw.y - cam.position.y + 0.05;
+      m.position.y = -drop;
+      const setDist = (dd) => { m.position.x = cam.position.x + f.x * (dd + reach); m.position.z = cam.position.z + f.z * (dd + reach); };
+      setDist(1.1);
       g.audio.sfx.play('jumpscare', { volume: 1 });
       g.ui.hurt(true);
       g.ui.flash(0.5, 200);
       d.shake = 1.6;
       g.redBoost = 0.6;
-      const head = m.headWorld();
-      await d.camTo(cam.position.clone().add(new THREE.Vector3(0, -0.12, 0)), head.clone().add(new THREE.Vector3(0, -0.05, 0)), 0.25, ease.outCubic);
-      d.tween(0.6, (k) => { m.position.x = cam.position.x + f.x * (0.75 - k * 0.35); m.position.z = cam.position.z + f.z * (0.75 - k * 0.35); });
-      await d.track(() => m.headWorld(), 0.9, 20);
+      const faceAt = () => m.headWorld().add(new THREE.Vector3(0, 0.02, 0));
+      await d.camTo(cam.position.clone(), faceAt(), 0.12, ease.outCubic);
+      d.tween(0.45, (k) => setDist(1.1 - k * 0.82), ease.inCubic);
+      await d.track(faceAt, 0.9, 25);
       g.ui.fade(1, 0.05);
       await d.wait(1.2);
     }, { skippable: false, letterbox: false });
