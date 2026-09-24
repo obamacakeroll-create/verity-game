@@ -94,6 +94,7 @@ export class Menus {
       <h2>CONTENT WARNING</h2>
       <p>VERITY contains jumpscares, flashing lights, loud sounds and themes of psychological distress.<br>Best played alone, in the dark, with headphones.</p>
       <p style="font-size:16px">Verity listens to what you type. Be careful what you say.</p>
+      ${matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches ? '<p style="font-size:16px;color:#f2c21a">This game needs a keyboard and mouse.</p>' : ''}
       <div class="go">CLICK ANYWHERE TO BEGIN</div>`, 'black warning');
     d.onclick = () => {
       this.game.audio.init();

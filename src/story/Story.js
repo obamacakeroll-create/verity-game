@@ -284,6 +284,9 @@ export class Story {
     this.s.flags.phase = 'approach';
     g.setObjective('approach', 'Walk toward the light.');
     g.checkpoint();
+    const k = g.settings.get('keys');
+    const kl = (c) => c.replace(/^Key/, '').replace('ShiftLeft', 'Shift');
+    setTimeout(() => g.ui.toast(`${kl(k.forward)}${kl(k.left)}${kl(k.back)}${kl(k.right)} — move · Mouse — look · ${kl(k.sprint)} — run · ${kl(k.flashlight)} — phone light · ${kl(k.interact)} — interact`, 6), 1200);
   }
 
   async boxCutscene() {

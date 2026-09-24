@@ -112,6 +112,15 @@ export class Game {
       this.updateAmbientTalk(dt);
     } else if (this.mode === 'menu') {
       this.menuCamera(dt);
+      // every so often, something in the box moves
+      this.menuShake = (this.menuShake ?? 12) - dt;
+      if (this.menuShake <= 0) {
+        this.menuShake = 14 + rand() * 12;
+        this.box.shake = 0.6;
+        this.audio.sfx?.play('rustle', { position: this.box.root.position, volume: 0.6, dur: 0.5 });
+        this.lighting.flicker(0.4, 'corner', 0.6);
+        setTimeout(() => (this.box.shake = 0), 500);
+      }
     } else {
       this.input.consumeMouse();
       if (this.mode === 'cutscene') this.story.update(dt, true);
