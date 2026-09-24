@@ -17,7 +17,7 @@ export class VerityBall {
 
     const lines = makePrintLines(512, 140);
     this.mat = new THREE.MeshStandardMaterial({
-      color: 0xf0c01c, roughness: 0.66, metalness: 0.0, normalMap: lines,
+      color: 0xffc30a, roughness: 0.62, metalness: 0.0, normalMap: lines,
       normalScale: new THREE.Vector2(0.55, 0.55), emissive: 0x6a4800, emissiveIntensity: 0.55,
     });
     this.sphere = new THREE.Mesh(new THREE.SphereGeometry(BALL_RADIUS, 64, 48), this.mat);
@@ -123,6 +123,6 @@ export class VerityBall {
     this.glow.intensity = (0.3 + (this.face.talking ? 0.25 : 0)) * (ctx.glowScale ?? 1);
     // a faint inner light so she always reads in the dark; it sours as she turns
     this.mat.emissiveIntensity = 0.55 - ins * 0.0025 + (this.face.talking ? 0.1 : 0);
-    this.mat.emissive.setRGB(0.42 + ins * 0.001, 0.28 - ins * 0.0014, 0);
+    this.mat.emissive.setRGB(0.5 + ins * 0.001, 0.3 - ins * 0.0016, 0.0);
   }
 }

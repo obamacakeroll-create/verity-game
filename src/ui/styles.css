@@ -65,7 +65,7 @@ button { font-family: inherit; }
 .meter .fill { height: 100%; width: 100%; background: rgba(230,225,210,.8); }
 #battery .fill { background: rgba(255, 230, 150, .85); }
 #battery.low .fill { background: #d33; }
-#breath { position: absolute; left: 50%; bottom: 18vh; transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity .4s; }
+#breath { position: absolute; left: 50%; bottom: 30vh; transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity .4s; }
 #breath.on { opacity: 1; }
 #breath .label { font-family: var(--round); font-size: 12px; letter-spacing: .4em; color: var(--dim); margin-bottom: 6px; }
 #breath .meter { width: 220px; opacity: 1; }

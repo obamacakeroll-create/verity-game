@@ -670,14 +670,14 @@ export class Story {
       g.ui.toast('It’s chained shut from the inside.');
       if (!s.flags.triedFront) {
         s.flags.triedFront = true;
-        g.addInsanity(4);
+        g.addInsanity(3);
         await g.speak('verity', 'Where do you think you’re going?');
       }
     } else {
       g.audio.sfx.play('locked', { position: g.house.doors.end.worldPos(), volume: 1.2 });
       if (!s.flags.triedEnd) {
         s.flags.triedEnd = true;
-        g.addInsanity(4);
+        g.addInsanity(3);
         await g.speak('verity', 'I locked it. For us.');
       }
     }
@@ -756,7 +756,7 @@ export class Story {
     answer = await g.ui.ask(['Yes. Forever.', 'No.']);
     g.ui.clearSubtitle();
     if (!this.alive(tk)) return;
-    if (answer === 0 && this.s.insanity < 50) return this.endingFriends();
+    if (answer === 0 && this.s.insanity < 55) return this.endingFriends();
     await g.director.play(async (d) => {
       if (answer === 0) {
         await d.say('verity', 'Liar.', { stage: 6 });
@@ -1099,9 +1099,19 @@ export class Story {
     g.closeChat();
     await g.director.play(async (d) => {
       d.grabCamera();
-      const head = m.headWorld();
       m.mode = 'idle';
       m.speed = 0;
+      const cam = g.renderer.camera;
+      const f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion).setY(0).normalize();
+      if (m.position.distanceTo(g.player.pos) > 4 || !g.chase.canSee()) {
+        // the words summon it: it is suddenly standing right in front of you
+        m.position.set(g.player.pos.x + f.x * 2.2, 0, g.player.pos.z + f.z * 2.2);
+        resolveCircle(m.position, 0.35, H.colliders);
+        g.ui.flash(0.3, 200);
+      }
+      m.root.rotation.y = Math.atan2(g.player.pos.x - m.position.x, g.player.pos.z - m.position.z);
+      m.update(0.016);
+      const head = m.headWorld();
       await d.camTo(d.camPos.clone(), head, 0.8);
       g.audio.sfx.play('glitch', { position: head, volume: 1, dur: 1 });
       L.flicker(3, null, 0.9);

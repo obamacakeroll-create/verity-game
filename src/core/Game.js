@@ -210,7 +210,10 @@ export class Game {
   }
 
   canTalk() {
-    return this.verity.visible && this.state.flags.verityOut && !this.player.hidden && (this.verity.mode === 'follow' || this.chase.active);
+    if (!this.state.flags.verityOut) return false;
+    // during a chase you can still talk to it — it hears you wherever you are
+    if (this.chase.active) return true;
+    return this.verity.visible && !this.player.hidden && this.verity.mode === 'follow';
   }
 
   updateInteraction(dt) {
@@ -290,6 +293,13 @@ export class Game {
       insanity: this.state.insanity, objective: this.state.objective, transformed: this.state.transformed, hard: this.state.hard,
     });
     if (res.rude) this.state.rude++;
+    // talking while hiding gives you away
+    if (this.player.hidden && this.chase.active && !res.flags.boxCommand) {
+      this.chase.sawHide = true;
+      this.chase.state = 'search';
+      this.chase.path = [];
+      res.text = 'I can hear you. ' + res.text;
+    }
     if (res.flags.falsity && !this.save.data.falsity) { this.save.data.falsity = true; this.save.write(); }
     // "thinking" beat — longer and glitchier as she deteriorates
     const stage = stageFor(this.state.insanity);
