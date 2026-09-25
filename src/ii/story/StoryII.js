@@ -167,7 +167,7 @@ export class StoryII {
       if (this.timers.breath <= 0) {
         this.timers.breath = p.sprinting ? 0.9 : 2.4;
         const f = p.lookDir;
-        g.particles.burst(p.eyePos.addScaledVector(f, 0.25).add(new THREE.Vector3(0, -0.08, 0)), 'breath', p.sprinting ? 14 : 8);
+        g.particles.burst(p.eyePos.addScaledVector(f, 0.55).add(new THREE.Vector3(0, -0.22, 0)), 'breath', p.sprinting ? 10 : 6);
       }
     }
     this.updateCab?.(dt);
@@ -601,8 +601,11 @@ export class StoryII {
     this.menuT += dt;
     const t = this.menuT;
     const cam = g.camera;
-    cam.position.set(-3.6 + Math.sin(t * 0.05) * 0.4, 1.35 + Math.sin(t * 0.3) * 0.02, 3.3 + Math.sin(t * 0.07) * 0.25);
-    cam.lookAt(-1.9 + Math.sin(t * 0.11) * 0.3, 0.9, 7.2);
+    cam.position.set(-0.3 + Math.sin(t * 0.05) * 0.35, 1.42 + Math.sin(t * 0.3) * 0.02, 4.1 + Math.sin(t * 0.07) * 0.2);
+    cam.lookAt(-2.5 + Math.sin(t * 0.11) * 0.25, 0.85, 7.3);
+    const L = this.L;
+    L.refs.tv.mat.emissiveIntensity = 1.3;
+    if (L._tvLight) L._tvLight.intensity = 1.1 + Math.random() * 0.7;
     g.player.pos.set(cam.position.x, 0, cam.position.z);
     if (Math.random() < dt * 0.04) g.lightning(0.6);
   }

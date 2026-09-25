@@ -132,7 +132,7 @@ export class Level {
   update(dt, t) { for (const f of this.updaters) f(dt, t); }
 
   // Batch geometry, bake AO, build nav, capture probes.
-  async finalize({ ao = true, probeSize = 128, onProgress } = {}) {
+  async finalize({ ao = true, aoAsync = false, probeSize = 128, onProgress } = {}) {
     const zones = [...this.zones.values()];
     // 1. batch per zone/material
     const aoTargets = [], occ = [];
@@ -163,7 +163,11 @@ export class Level {
       const key = aoKey(this.name, aoTargets);
       const cached = await cacheGet(key);
       if (cached && applyAO(aoTargets, cached)) onProgress?.(0.8, 'baking light');
-      else {
+      else if (aoAsync) {
+        // first visit: play with flat AO while the bake runs in the background
+        aoTargets.forEach((g) => setFlatAO(g, 1));
+        this.aoTask = bakeVertexAO(aoTargets, occ, { budget: 9 }).then(() => { if (!this.disposed) cachePut(key, packAO(aoTargets)); });
+      } else {
         await bakeVertexAO(aoTargets, occ, { onProgress: (p) => onProgress?.(0.05 + p * 0.75, 'baking light') });
         cachePut(key, packAO(aoTargets));
       }
@@ -189,6 +193,7 @@ export class Level {
   }
 
   dispose() {
+    this.disposed = true;
     this.root.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); } });
     for (const z of this.zones.values()) z.probe?.dispose();
     this.root.removeFromParent();

@@ -115,7 +115,7 @@ export class Monster {
     const g = this.game;
     const skin = g.lib.set('skin');
     this.mat = new THREE.MeshPhysicalMaterial({
-      color: 0xd9bd58, map: skin.map, normalMap: skin.normalMap, roughnessMap: skin.orm, roughness: 1, metalness: 0,
+      color: 0xc4a24c, map: skin.map, normalMap: skin.normalMap, roughnessMap: skin.orm, roughness: 1, metalness: 0,
       normalScale: new THREE.Vector2(1.7, 1.7), sheen: 0.45, sheenColor: new THREE.Color(0xffe39a), sheenRoughness: 0.45,
       clearcoat: 0.25, clearcoatRoughness: 0.4,
     });
@@ -281,6 +281,20 @@ export class Monster {
         idx.push(a, c, b, b, c, dd);
       }
       parts.skin.push(this.skinned(pos, idx, si, sw));
+    }
+    // pelvis: close the bottom of the torso and bridge into the hips
+    {
+      const pel = new THREE.SphereGeometry(0.155, 24, 16);
+      pel.scale(1, 0.62, 0.68);
+      pel.translate(0, 1.17, -0.005);
+      parts.skin.push(this.rigid(pel, 'hips'));
+      for (const n of ['L', 'R']) {
+        const hj = new THREE.SphereGeometry(0.078, 16, 12);
+        hj.scale(1, 1.25, 1);
+        const c = R['thigh' + n];
+        hj.translate(c.x * 0.92, c.y - 0.01, c.z);
+        parts.skin.push(this.rigid(hj, 'thigh' + n, 'hips', () => 0.35));
+      }
     }
     // clavicles + shoulder knobs
     for (const n of ['L', 'R']) {

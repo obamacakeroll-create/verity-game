@@ -83,7 +83,7 @@ export const Finale = {
       d.cut(new THREE.Vector3(-3.5, -6.4, -47), new THREE.Vector3(C.x, -4, C.z));
       await d.wait(0.8);
       g.audio.sfx.play('powerUp', { volume: 0.9 });
-      d.tween(3.5, (k) => { R.ballWall.mat.emissiveIntensity = k * 0.35; R.core.wallLight.intensity = k * 10; }, ease.inOutSine);
+      d.tween(3.5, (k) => { R.ballWall.mat.emissiveIntensity = k * 0.35; R.core.wallLight.intensity = k * 4; }, ease.inOutSine);
       await d.camPath([new THREE.Vector3(-3.5, -6.4, -47), new THREE.Vector3(-6.5, -6.0, -45.5), new THREE.Vector3(-8.2, -6.2, -47)], () => new THREE.Vector3(C.x - 6, -3.5, C.z), 5);
       g.audio.music.setMood('core', 2);
       if (v.visible) {
@@ -301,6 +301,7 @@ export const Finale = {
     g.monster.show(false);
     g.setObjective(null);
     const road = R.road;
+    g.player.flashOn = false;
     await g.director.play(async (d) => {
       g.audio.sfx.play('carDoor', { volume: 1 });
       await d.fade(1, 0.3);

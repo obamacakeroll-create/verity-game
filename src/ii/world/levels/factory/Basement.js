@@ -311,7 +311,12 @@ export function buildBasement(L, game) {
     }
   }
   const bgeo = new THREE.SphereGeometry(rb, 12, 8);
-  const bmat = new THREE.MeshStandardMaterial({ map: printedFaceTexture('smile'), roughness: 0.5, emissive: 0xffffff, emissiveIntensity: 0.0 });
+  const faceTex = printedFaceTexture('smile');
+  const bmat = new THREE.MeshStandardMaterial({ map: faceTex, roughness: 0.5, emissive: 0xffa020, emissiveMap: faceTex, emissiveIntensity: 0.0 });
+  // the instance colour (dark eye/mouth balls of the giant face) also dims their glow
+  bmat.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_INSTANCING_COLOR\ntotalEmissiveRadiance *= vColor;\n#endif');
+  };
   const wall = new THREE.InstancedMesh(bgeo, bmat, balls.length);
   const col = new THREE.Color();
   balls.forEach((p, i) => {
@@ -319,7 +324,7 @@ export function buildBasement(L, game) {
     _s.setScalar(p.s);
     _m.compose(new THREE.Vector3(p.x, p.y, p.z), _q, _s);
     wall.setMatrixAt(i, _m);
-    col.set(p.f === 2 ? 0x0a0806 : p.f === 1 ? 0x100804 : 0xffffff);
+    col.set(p.f === 2 ? 0x050403 : p.f === 1 ? 0x080402 : 0xffffff);
     wall.setColorAt(i, col);
   });
   _s.set(1, 1, 1);

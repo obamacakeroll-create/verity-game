@@ -144,6 +144,7 @@ export class Game2 {
     this.scene.add(level.root);
     await level.finalize({
       ao: this.renderer.quality.texScale >= 0.5 && !this.settings.get('fastLoad'),
+      aoAsync: name === 'factory',
       probeSize: this.renderer.quality.texScale >= 1 ? 128 : 64,
       onProgress: (p, label) => { progress(p, label); this.ui.loading(true, label, p); },
     });

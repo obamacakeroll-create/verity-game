@@ -412,6 +412,7 @@ export const Prologue = {
     const mirrorPos = new THREE.Vector3();
     road.mirror.getWorldPosition(mirrorPos);
     g.setGrade('night', 0);
+    g.player.flashOn = false;
     await g.director.play(async (d) => {
       d.cut(seat, ahead);
       g.updateZone(true);

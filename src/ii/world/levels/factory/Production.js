@@ -80,7 +80,7 @@ export function buildProduction(L, game) {
   let b = L.builder('printlab');
   const labWall = { r: 'panel', color: 0xc8ccc4, grime: 1.3 };
   b.room({
-    x0: -16, z0: -46, x1: 16, z1: -22, h: 5.5, wall: labWall, floor: { r: 'concrete', color: 0x8a9a90, rough: 0.55 }, ceil: { r: 'corrugated', color: 0x5a5e60 },
+    x0: -16, z0: -46, x1: 16, z1: -22, h: 5.5, wall: labWall, floor: { r: 'concrete', color: 0x8a9a90, rough: 0.55 }, ceil: { r: 'corrugated', color: 0x5a5e60, metal: 0.15 },
     base: false, skip: ['e'], sides: { s: [{ at: 16, w: 2.2, h: 2.6, frame: { r: 'metalPaint', color: 0x3a3d3f } }] },
   });
   R.labDoors = new Door(L, { id: 'labDoors', zone: 'printlab', x: 0, z: -22, w: 2.2, h: 2.6, axis: 'x', kind: 'slideGlass', hinge: -1 });
@@ -191,7 +191,7 @@ export function buildProduction(L, game) {
   const whUp = { r: 'corrugated', color: 0x8a948e, grime: 1.3 };
   b.floor(16, -50, 60, -6, { r: 'concrete', color: 0x9a9890, rough: 0.7 }, { seg: 1.5 });
   // roof + trusses + skylights
-  b.ceiling(16, -50, 60, -6, 9, { r: 'corrugated', color: 0x4a4e50 }, { seg: 3 });
+  b.ceiling(16, -50, 60, -6, 9, { r: 'corrugated', color: 0x4a4e50, metal: 0.15 }, { seg: 3 });
   for (let z = -48; z <= -8; z += 5) b.box(44, 0.5, 0.14, [38, 8.6, z], { r: 'metalPaint', color: 0x3a3e40 }, { seg: 4, cast: false });
   const skylights = [];
   for (const [x, z] of [[27, -18], [39, -30], [51, -42], [33, -42], [45, -18]]) {

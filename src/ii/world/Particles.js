@@ -53,7 +53,8 @@ const RAIN_FRAG = /* glsl */ `
 uniform float uAlpha;
 uniform vec3 uColor;
 varying float vA;
-void main() { gl_FragColor = vec4(uColor, vA * uAlpha); }`;
+out vec4 rainColor;
+void main() { rainColor = vec4(uColor, vA * uAlpha); }`;
 
 export class Particles {
   constructor(game) {
@@ -112,7 +113,7 @@ export class Particles {
   }
 
   burst(pos, kind = 'sparks', n = 40) {
-    const col = { sparks: [3, 1.8, 0.6], glass: [0.9, 1, 1], dust: [0.35, 0.33, 0.3], breath: [0.5, 0.55, 0.6], plastic: [1.4, 1, 0.2] }[kind] || [1, 1, 1];
+    const col = { sparks: [3, 1.8, 0.6], glass: [0.9, 1, 1], dust: [0.35, 0.33, 0.3], breath: [0.1, 0.11, 0.12], plastic: [1.4, 1, 0.2] }[kind] || [1, 1, 1];
     for (let i = 0; i < n && this.parts.length < BURST_N; i++) {
       const v = new THREE.Vector3((Math.random() - 0.5) * 2, Math.random() * 1.5 + 0.5, (Math.random() - 0.5) * 2);
       if (kind === 'breath') v.set((Math.random() - 0.5) * 0.2, 0.15 + Math.random() * 0.1, (Math.random() - 0.5) * 0.2);

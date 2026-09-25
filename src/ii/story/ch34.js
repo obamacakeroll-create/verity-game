@@ -59,7 +59,7 @@ export const Back = {
     // the Core
     const W = R.ballWall;
     W.mat.emissiveIntensity = n >= 5 && f.coreIntro ? 0.35 : 0.0;
-    R.core.wallLight.intensity = n >= 5 && f.coreIntro ? 10 : 0;
+    R.core.wallLight.intensity = n >= 5 && f.coreIntro ? 4 : 0;
     this.setWallEyes(false);
     void n;
   },
@@ -68,7 +68,7 @@ export const Back = {
     const W = this.R.ballWall;
     const c = new THREE.Color();
     W.balls.forEach((b, i) => {
-      c.set(b.f === 2 ? (closed ? 0xffffff : 0x0a0806) : b.f === 1 ? (closed ? 0x806040 : 0x100804) : 0xffffff);
+      c.set(b.f === 2 ? (closed ? 0xffffff : 0x050403) : b.f === 1 ? (closed ? 0x806040 : 0x080402) : 0xffffff);
       W.mesh.setColorAt(i, c);
     });
     W.mesh.instanceColor.needsUpdate = true;

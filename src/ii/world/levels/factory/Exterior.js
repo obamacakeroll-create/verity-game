@@ -76,6 +76,7 @@ export function buildExterior(L, game) {
   L.dynamic.add(city2);
   const sky = skyDome(220);
   L.dynamic.add(sky);
+  L.onUpdate(() => sky.position.copy(game.camera.position).setY(0));
 
   // ------------------------------------------------------------ facade
   const brick = { r: 'brick', color: 0x9a6a58, wet: 0.6, grime: 1.2 };
@@ -221,8 +222,8 @@ function buildRoad(L, game) {
     add(new THREE.BoxGeometry(0.08, 0.6, 3.2), paint, [s * 0.85, 0.55, 0.4]);
     add(new THREE.BoxGeometry(0.06, 0.62, 0.06), paint, [s * 0.8, 1.25, -0.72], [-0.5, 0, 0]);
   }
-  const wheel = add(new THREE.TorusGeometry(0.19, 0.022, 10, 28), dash, [-0.36, 1.02, -0.52], [-0.95, 0, 0]);
-  add(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8), dash, [-0.36, 0.92, -0.66], [-0.95 + Math.PI / 2, 0, 0]);
+  const wheel = add(new THREE.TorusGeometry(0.17, 0.02, 10, 28), dash, [-0.36, 0.93, -0.56], [-1.1, 0, 0]);
+  add(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8), dash, [-0.36, 0.86, -0.68], [-1.1 + Math.PI / 2, 0, 0]);
   // gauges glow
   const gauges = add(new THREE.PlaneGeometry(0.36, 0.1), new THREE.MeshStandardMaterial({ color: 0x050505, emissive: 0x3aa0ff, emissiveIntensity: 0.6 }), [-0.36, 1.03, -0.78], [-0.9, 0, 0]);
   const radio = add(new THREE.PlaneGeometry(0.16, 0.05), new THREE.MeshStandardMaterial({ color: 0x050505, emissive: 0x40ff90, emissiveIntensity: 0.9 }), [0, 0.95, -0.72], [-0.6, 0, 0]);
@@ -265,7 +266,7 @@ function buildRoad(L, game) {
   // headlight beam — a pooled spot fixture
   const headF = game.lights.add({ type: 'spot', position: new THREE.Vector3(RX - 1.8, 0.8, RZ - 2.2), dir: new THREE.Vector3(0, -0.12, -1), angle: 0.6, penumbra: 0.5, color: 0xfff0d0, intensity: 40, range: 40, zone: b.zone, volScale: 0.6 });
   const dashF = game.lights.add({ type: 'bulb', position: new THREE.Vector3(RX - 2.1, 1.1, RZ - 0.6), color: 0x5aa0ff, intensity: 0.4, range: 1.6, zone: b.zone, volScale: 0 });
-  const seat = new THREE.Vector3(RX - 1.8 - 0.36, 1.22, RZ + 0.25);
+  const seat = new THREE.Vector3(RX - 1.8 - 0.36, 1.3, RZ + 0.3);
   const state = { speed: 0, wipe: true, wiperT: 0, dist: 0, mirrorFace: 0, dawn: 0 };
   const drawMirror = () => {
     const x = mirC.getContext('2d');
