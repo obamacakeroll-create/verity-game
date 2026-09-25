@@ -461,7 +461,7 @@ export const Back = {
     const g = this.g, f = this.s.flags, R = this.R;
     if (f.labThawed) return;
     const sfx = (n) => g.audio.sfx.play(n === 'valve' ? 'creak' : n, { position: new THREE.Vector3(30.4, -6.5, -45.3), volume: 0.7 });
-    const order = await g.panel(valveBoard({ sfx, hint: 'Turn them in order. The note says: do the opposite of what the prototype tells you.' }));
+    const order = await g.panel(valveBoard({ sfx, hint: 'Turn them in order. The note says: the prototype always lies — reverse whatever order it gives you.' }));
     if (!order) return;
     R.valves.forEach((v, i) => { v.rotation.z += Math.PI * (1 + order.indexOf(i + 1)); });
     if (checkValves(order, f.valves)) this.thaw();

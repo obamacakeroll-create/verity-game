@@ -88,7 +88,7 @@ export const DOCS = {
   d5: { title: 'Birthday card', where: 'manager', text: 'HAPPY 9TH BIRTHDAY VERA!!\n12 · 03\n\nLove from Mummy and everyone at Helpful Friends (and Verity!!)' },
   d6: { title: 'QC report — seconds', where: 'printlab', text: 'Batch 1996-114: 38 units rejected. Incomplete shells. Units exhibit movement when unobserved. Do NOT look away from a second while handling it. Do NOT leave the bins unlocked. Do NOT let them hear you.' },
   d7: { title: 'Returns manifest', where: 'dispatch', text: 'RETURNS — BAY 3\n• Harlow, M. & D. — 1107 Wren St. — RETURNED\n• Okafor, D. — RETURNED\n• Lindqvist, G. — RETURNED\n• {name} — SCHEDULED: tomorrow\n\nROUTING (returns chute): {route}' },
-  d8: { title: 'Maintenance note', where: 'cold', text: 'Lab door keeps freezing shut. Thaw sequence is on the valve board. If you ask the old prototype in cabinet 4, do the OPPOSITE of what it says. It has never once told the truth.' },
+  d8: { title: 'Maintenance note', where: 'cold', text: 'Lab door keeps freezing shut. Thaw sequence is on the valve board. If you ask the old prototype in cabinet 4, turn them in the REVERSE of the order it gives you. It has never once told the truth.' },
   d9: { title: 'Child\'s drawing', where: 'bedroom', text: '(Crayon. A girl holding hands with a yellow ball. Behind them, a very tall yellow person with a very wide smile. Written underneath: "ME AND VERITY AND THE OTHER VERITY. SHE IS NICE WHEN YOU ARE NICE.")' },
   d10: { title: 'Recall notice', where: 'core', text: 'PRODUCT RECALL — ALL VERITY UNITS\nDo not ask your Verity any further questions. Do not argue with your Verity. Place your Verity in its original box and return it to Helpful Friends. We will know what to do.\n\n(Nobody knew what to do.)' },
 };
