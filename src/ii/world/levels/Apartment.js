@@ -8,6 +8,7 @@ import { cityBackdrop, windowGlass, skyDome } from '../Exterior.js';
 // Chapter 0: your new apartment (4C), three nights after Wren Street.
 export function buildApartment(game) {
   const L = new Level(game, 'apartment');
+  L.noCull = true;
   const warm = { density: 0.018, heightFalloff: 0.3, ambient: [0.0004, 0.0004, 0.0005], noise: 0.5 };
   L.zone('corridor', { x0: -4, z0: -3, x1: 5, z1: 0, h: 2.7, grade: 'night', reverb: 'hall', neighbors: ['entry', 'stairs'], fog: { density: 0.03, heightFalloff: 0.25, ambient: [0.0005, 0.0006, 0.0006], noise: 0.8 }, envIntensity: 0.8 });
   L.zone('stairs', { x0: 5, z0: -3, x1: 8, z1: 0, h: 2.7, grade: 'night', reverb: 'hall', neighbors: ['corridor'] });
@@ -55,13 +56,13 @@ export function buildApartment(game) {
   b.box(0.7, 0.05, 0.05, [-0.97, 1.7, 1.2], { r: 'wood', color: 0x4a3526 }, { rot: [0, Math.PI / 2, 0] });
   b.box(0.3, 0.9, 0.5, [-0.8, 0.45, 1.8], { r: 'wood', color: 0x5a4332 }, { collide: true, bevel: 0.01 });
   // intercom panel
-  b.box(0.14, 0.24, 0.04, [1.17, 1.45, 0.7], { r: 'plastic', color: 0xe0dcd2 }, { rot: [0, -Math.PI / 2, 0], bevel: 0.01 });
+  b.box(0.14, 0.24, 0.04, [1.1, 1.5, 0.7], { r: 'plastic', color: 0xe0dcd2 }, { rot: [0, -Math.PI / 2, 0], bevel: 0.01 });
   const intercomLED = new THREE.Mesh(new THREE.CircleGeometry(0.008, 12), new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff2a1a, emissiveIntensity: 0 }));
-  intercomLED.position.set(1.145, 1.52, 0.7);
+  intercomLED.position.set(1.077, 1.57, 0.7);
   intercomLED.rotation.y = -Math.PI / 2;
   b.add(intercomLED);
-  const intercomHit = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.2), new THREE.MeshBasicMaterial({ visible: false }));
-  intercomHit.position.set(1.15, 1.45, 0.7);
+  const intercomHit = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.36, 0.26), new THREE.MeshBasicMaterial({ visible: false }));
+  intercomHit.position.set(1.06, 1.5, 0.7);
   b.add(intercomHit);
 
   b = L.builder('living');
@@ -89,7 +90,7 @@ export function buildApartment(game) {
   b.geo(new THREE.CylinderGeometry(0.16, 0.22, 0.28, 20, 1, true), { r: 'fabric', color: 0xd8c8a8, side: THREE.DoubleSide }, [-3.4, 1.6, 7.4]);
   const lamp = game.lights.add({ type: 'lamp', position: new THREE.Vector3(-3.4, 1.55, 7.4), color: 0xffb870, intensity: 3.0, range: 6, zone: L.zones.get('living'), volScale: 0.6 });
   // moving boxes (you only moved in three days ago)
-  const boxes = [[-4.8, 7.4, 0.2, 0.5, 0.4, 0.45], [-4.8, 6.8, -0.3, 0.6, 0.45, 0.45], [-4.75, 7.35, 0.1, 0.45, 0.35, 0.4, 0.4], [0.6, 3.1, 0.4, 0.55, 0.45, 0.45], [-0.3, 3.3, -0.1, 0.5, 0.35, 0.42]];
+  const boxes = [[-4.8, 7.4, 0.2, 0.5, 0.4, 0.45], [-4.8, 6.8, -0.3, 0.6, 0.45, 0.45], [-4.75, 7.35, 0.1, 0.45, 0.35, 0.4, 0.4], [-4.85, 6.15, 0.4, 0.55, 0.45, 0.45], [-4.2, 7.5, -0.1, 0.5, 0.35, 0.42]];
   for (const [x, z, r, w, h, d, y = 0] of boxes) P.cardboardBox(b, x, y, z, r, w, h, d, { collide: y === 0 });
   // windows: glass + city
   for (const wz of [4.0, 6.5]) {
@@ -161,7 +162,7 @@ export function buildApartment(game) {
     tv: new THREE.Vector3(-1.9, 1.02, 7.7),
     doormat: new THREE.Vector3(0, 0, -0.55),
     coffeeTable: new THREE.Vector3(-1.9, 0.45, 6.45),
-    intercom: new THREE.Vector3(1.15, 1.45, 0.7),
+    intercom: new THREE.Vector3(1.08, 1.45, 0.7),
     peephole: new THREE.Vector3(0, 1.58, 0.05),
     freezer: fr.freezerPos,
     mirror: new THREE.Vector3(3.9, 1.55, 2.45),

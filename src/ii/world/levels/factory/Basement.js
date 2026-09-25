@@ -131,14 +131,14 @@ export function buildBasement(L, game) {
   b.wall(45, -57, 45, -49, { h: 3, mat: frostWall, base: false });
   R.cabinets = [];
   for (let i = 0; i < 6; i++) {
-    const x = 46 + (i % 3) * 2, z = i < 3 ? -56.3 : -52.6;
+    const x = 45.9 + (i % 3) * 2.1, z = i < 3 ? -56.3 : -52.6;
     const rot = i < 3 ? 0 : Math.PI;
-    b.box(1.0, 1.9, 0.7, [x, 0.95, z + (i < 3 ? 0 : 0)], { r: 'metalPaint', color: 0x5a6468, frost: true }, { bevel: 0.02, collide: true });
+    b.box(0.9, 1.9, 0.7, [x, 0.95, z], { r: 'metalPaint', color: 0x5a6468, frost: true }, { bevel: 0.02, collide: true });
     const n = makeSignMesh(`CABINET ${i + 1}`, 0.4, 0.1, { bg: '#e8e2d0', fg: '#222', font: 'bold 40px Arial', sub: i === 3 ? 'F-01 · DO NOT ANSWER' : ['V-00 · shell', 'V-02 · voice only', 'V-03 · melted', '', 'empty', 'empty'][i] });
     n.position.set(x, 1.75, z + (i < 3 ? 0.356 : -0.356));
     n.rotation.y = rot;
     b.add(n);
-    const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.2), lib.plain({ color: 0x8ea4a8, rough: 0.05, transparent: true, opacity: 0.25, zone: b.zone }));
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 1.2), lib.plain({ color: 0x8ea4a8, rough: 0.05, transparent: true, opacity: 0.25, zone: b.zone }));
     glass.position.set(x, 0.95 + 0.0, z + (i < 3 ? 0.353 : -0.353));
     glass.rotation.y = rot;
     b.add(glass);
@@ -159,7 +159,7 @@ export function buildBasement(L, game) {
   const f01Light = game.lights.add({ type: 'bulb', position: new THREE.Vector3(fc.x, Y + 1.0, fc.z - 0.4), color: 0xff2a1a, intensity: 0.5, range: 2.5, zone: b.zone, emissive: fEye.material, emissiveBase: 3, volScale: 1.5 });
   R.falsity = { group: f01, eye: fEye, light: f01Light, pos: new THREE.Vector3(fc.x, Y + 1.0, fc.z - 0.3) };
   hitbox(b, [fc.x, 1.0, fc.z - 0.4], [0.9, 1.2, 0.3], { label: (g) => g.story.falsityLabel?.(), onInteract: (g) => g.story.talkFalsity?.() });
-  figure(b, 10, 50.5, 1.92, -56.3, { nv: true });
+  figure(b, 10, 48.0, 1.92, -56.3, { nv: true });
   R.archLight = P.bulb(b, 48, 2.95, -54.5, { cord: 0.1, intensity: 2.0, range: 6, color: 0xd8f0ff, state: 'dying' });
 
   // ================================================================ RUTH'S LAB

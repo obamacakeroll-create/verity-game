@@ -164,9 +164,9 @@ export function buildProduction(L, game) {
   sc.mat.emissiveMap = status.texture;
   sc.mat.emissiveIntensity = 1.1;
   R.gridScreen = status;
-  tapeDeck(cb, 'r3', cd[0] + 0.6, cd[1], cd[2] + 0.1, 0.4);
+  tapeDeck(cb, 'r3', cd[0] + 0.75, cd[1], cd[2] + 0.28, 0.4);
   figure(cb, 6, -15.6, 2.2, -30.6, { nv: true });
-  P.officeChair(cb, -11.2, -29.0, 2.8);
+  P.officeChair(cb, -11.6, -28.9, 2.8);
   hideLocker(cb, -15.7, -24, Math.PI / 2, { color: 0x5a6a5a });
   // the big breaker panel on the west wall
   cb.box(0.2, 1.8, 2.6, [-15.86, 1.55, -27], { r: 'metalPaint', color: 0x7a7e78, grime: 1.3 }, { bevel: 0.02 });
@@ -261,7 +261,7 @@ export function buildProduction(L, game) {
   // aisle lights
   R.whLights = [];
   for (const x of [27, 33, 39, 45]) for (const z of [-44, -32, -20]) R.whLights.push(P.bulb(b, x, 8.4, z, { cord: 1.2, shade: true, shadeColor: 0x3a3e40, intensity: 12, range: 14, color: 0xfff0d8, state: (x + z) % 4 === 0 ? 'dying' : 'on', volScale: 1.6 }));
-  figure(b, 7, 36.3, 2.12, -40.1);
+  figure(b, 7, 34.7, 0.0, -40.1, { rot: 1.2 });
   scrawl(b, 'YOUR BOX SHIPS TOMORROW', 59.85, 3.4, -30, -Math.PI / 2, { w: 4.4 });
   scrawl(b, 'sign for it', 16.2, 2.5, -40, Math.PI / 2, { nv: true, w: 2.4 });
   // ---- conveyor sorting line

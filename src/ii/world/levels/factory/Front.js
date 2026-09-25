@@ -62,7 +62,7 @@ export function buildFront(L, game) {
   paper(b, 'd2', -1.5, 1.145, deskZ + 1.12, 0.3, { label: 'Read the brochure', color: '#f7d84a', w: 0.2, h: 0.28 });
   figure(b, 0, -2.2, 0.775, deskZ + 0.4, { rot: 0.5 });
   // logo wall
-  b.box(9, 3.2, 0.12, [0, 2.4, -9.86], { r: 'wood', color: 0x5a4030, rough: 0.5 }, { ao: false });
+  b.box(9, 1.8, 0.12, [0, 3.55, -9.86], { r: 'wood', color: 0x5a4030, rough: 0.5 }, { ao: false });
   const logoC = document.createElement('canvas');
   logoC.width = 1024; logoC.height = 512;
   {
@@ -78,12 +78,12 @@ export function buildFront(L, game) {
   }
   const logoTex = new THREE.CanvasTexture(logoC);
   logoTex.colorSpace = THREE.SRGBColorSpace;
-  const logo = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 3.2), new THREE.MeshStandardMaterial({ map: logoTex, transparent: true, roughness: 0.4, metalness: 0.2, emissive: 0xffffff, emissiveMap: logoTex, emissiveIntensity: 0 }));
-  logo.position.set(0, 2.5, -9.79);
+  const logo = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8), new THREE.MeshStandardMaterial({ map: logoTex, transparent: true, roughness: 0.4, metalness: 0.2, emissive: 0xffffff, emissiveMap: logoTex, emissiveIntensity: 0 }));
+  logo.position.set(0, 3.55, -9.79);
   b.add(logo);
   R.logo = logo;
   // wall uplights for the logo
-  for (const x of [-3.5, 3.5]) R['logoLight' + x] = P.wallLamp(b, x, 1.0, -9.8, 0, { intensity: 2.5, range: 5, color: 0xffd8a0, state: 'off' });
+  for (const x of [-3.5, 3.5]) R['logoLight' + x] = P.wallLamp(b, x * 0.6, 2.75, -9.8, 0, { intensity: 2.5, range: 5, color: 0xffd8a0, state: 'off' });
   // display case with the demo unit
   const cx = 4.6, cz = -1.6;
   b.box(0.8, 1.0, 0.8, [cx, 0.5, cz], { r: 'wood', color: 0x3a2a20, rough: 0.4 }, { collide: true, bevel: 0.02 });
@@ -142,10 +142,16 @@ export function buildFront(L, game) {
   poster(b, 'missing', -7.9, 1.6, 1.4, Math.PI / 2, 0.42, 0.6);
   P.corkboard(b, 7.91, 1.6, 1.8, -Math.PI / 2, 1.4, 0.9);
   scrawl(b, 'SHE KNOWS YOU CAME BACK', 7.88, 2.9, -2.2, -Math.PI / 2, { nv: true, w: 3.2 });
-  // production doors (keycard)
-  R.prodL = new Door(L, { id: 'prodL', zone: 'lobby', x: -0.525, z: -10, w: 1.05, h: 2.4, axis: 'x', hinge: -1, swing: 1, kind: 'metal', color: 0x3e4a50, locked: true, lockLabel: 'PRODUCTION — staff only', window: true });
-  R.prodR = new Door(L, { id: 'prodR', zone: 'lobby', x: 0.525, z: -10, w: 1.05, h: 2.4, axis: 'x', hinge: 1, swing: 1, kind: 'metal', color: 0x3e4a50, locked: true, lockLabel: 'PRODUCTION — staff only', window: true });
-  P.sign(b, 'PRODUCTION · AUTHORISED STAFF ONLY', 0, 2.8, -9.9, 0, 2.0, 0.22, { bg: '#c9372c', fg: '#fff', font: 'bold 48px Arial' });
+  // production doors (keycard): using the door itself swipes the card
+  const prodUse = (d, g) => { if (d.locked) { g.story.swipeCard?.(); return false; } };
+  const prodLabel = (d) => (d.locked ? (game.state.items.includes('keycard') ? 'Swipe the keycard' : 'PRODUCTION — keycard required') : undefined);
+  // emergency lamp over the doors so they read in the dark
+  const lampMat = new THREE.MeshStandardMaterial({ color: 0x401008, emissive: 0xff3a20, emissiveIntensity: 3, roughness: 0.4 });
+  dyn(b, new THREE.BoxGeometry(0.34, 0.12, 0.12), lampMat, [-1.5, 2.3, -9.86], [0, 0, 0], false);
+  b.light({ type: 'point', position: new THREE.Vector3(-1.5, 2.1, -9.4), color: 0xff6040, intensity: 2.2, range: 6, zone: b.zone, emissive: lampMat, emissiveBase: 3, state: 'on' });
+  R.prodL = new Door(L, { id: 'prodL', zone: 'lobby', onUse: prodUse, label: prodLabel, x: -0.525, z: -10, w: 1.05, h: 2.4, axis: 'x', hinge: -1, swing: 1, kind: 'metal', color: 0x7c8c94, locked: true, lockLabel: 'PRODUCTION — staff only', window: true });
+  R.prodR = new Door(L, { id: 'prodR', zone: 'lobby', onUse: prodUse, label: prodLabel, x: 0.525, z: -10, w: 1.05, h: 2.4, axis: 'x', hinge: 1, swing: 1, kind: 'metal', color: 0x7c8c94, locked: true, lockLabel: 'PRODUCTION — staff only', window: true });
+  P.sign(b, 'PRODUCTION · AUTHORISED STAFF ONLY', 0, 2.52, -9.9, 0, 2.0, 0.22, { bg: '#c9372c', fg: '#fff', font: 'bold 48px Arial' });
   b.box(0.1, 0.16, 0.04, [1.35, 1.25, -9.88], { r: 'plastic', color: 0x222222 }, { bevel: 0.01 });
   const readerLED = dyn(b, new THREE.CircleGeometry(0.01, 10), new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff2010, emissiveIntensity: 2 }), [1.35, 1.3, -9.855], [0, 0, 0], false);
   R.reader = { led: readerLED };

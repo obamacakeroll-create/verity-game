@@ -180,8 +180,13 @@ export class Game2 {
     if (z !== this.zone || force) {
       const prev = this.zone;
       this.zone = z;
-      this.visibleZones = new Set([z]);
-      for (const id of z.neighbors) { const n = L.zones.get(id); if (n) this.visibleZones.add(n); }
+      // two hops of neighbours (or everything on small levels) so rooms seen through doorways never pop out
+      if (L.noCull) this.visibleZones = new Set(L.zones.values());
+      else {
+        this.visibleZones = new Set([z]);
+        for (const id of z.neighbors) { const n = L.zones.get(id); if (n) this.visibleZones.add(n); }
+        for (const n of [...this.visibleZones]) for (const id of n.neighbors) { const m = L.zones.get(id); if (m && m.id !== 'road') this.visibleZones.add(m); }
+      }
       for (const o of L.zones.values()) o.group.visible = this.visibleZones.has(o);
       if (prev && prev.grade !== z.grade) this.setGrade(z.grade, 1.6);
       else if (!prev) this.setGrade(z.grade, 0);

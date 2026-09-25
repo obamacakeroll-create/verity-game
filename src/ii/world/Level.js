@@ -174,7 +174,7 @@ export class Level {
     }
     else aoTargets.forEach((g) => setFlatAO(g, 1));
     // 3. navigation
-    this.nav = new NavGrid(this.colliders, this.bounds());
+    this.nav = new NavGrid(this.colliders, this.bounds(), { cell: 0.3, radius: 0.26 }); // fine enough that 0.95 m doorways stay walkable
     onProgress?.(0.85, 'mapping');
     // 4. probes (created now, captured by the game once lights exist)
     for (const z of zones) {
@@ -186,6 +186,7 @@ export class Level {
   bounds() {
     const b = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
     for (const z of this.zones.values()) {
+      if (z.id === 'road') continue; // the drive is a cutscene: no nav needed
       b.minX = Math.min(b.minX, z.min.x); b.maxX = Math.max(b.maxX, z.max.x);
       b.minZ = Math.min(b.minZ, z.min.z); b.maxZ = Math.max(b.maxZ, z.max.z);
     }
