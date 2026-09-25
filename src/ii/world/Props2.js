@@ -37,7 +37,7 @@ export function fluoTrough(b, x, y, z, o = {}) {
   tubes.position.set(...T(0, 0, 0));
   tubes.rotation.y = rot;
   b.add(tubes);
-  const f = b.level.game.lights.add({
+  const f = b.light({
     type: 'fluo', position: new THREE.Vector3(...T(0, -0.25, 0)), color: o.color ?? 0xdff4ff, intensity: o.intensity ?? 4.5, range: o.range ?? 8,
     zone: b.zone, emissive: tubeMat, emissiveBase: o.emissive ?? 5, state: o.state || 'on', volScale: o.volScale ?? 1,
   });
@@ -67,7 +67,7 @@ export function bulb(b, x, y, z, o = {}) {
     g.add(shade);
   }
   b.add(g);
-  const f = b.level.game.lights.add({
+  const f = b.light({
     type: 'bulb', position: new THREE.Vector3(x, y - 0.08, z), color: o.color ?? 0xffc98a, intensity: o.intensity ?? 5, range: o.range ?? 7,
     zone: b.zone, emissive: glass, emissiveBase: o.emissive ?? 18, state: o.state || 'on', volScale: o.volScale ?? 1.4,
   });
@@ -82,7 +82,7 @@ export function wallLamp(b, x, y, z, rot, o = {}) {
   const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.14, 16, 1), m);
   lens.position.set(...T(0, 0, 0.09));
   b.add(lens);
-  return b.level.game.lights.add({ type: 'bulb', position: new THREE.Vector3(...T(0, 0, 0.25)), color: o.color ?? 0xffd5a0, intensity: o.intensity ?? 3, range: o.range ?? 6, zone: b.zone, emissive: m, emissiveBase: 6, state: o.state || 'on' });
+  return b.light({ type: 'bulb', position: new THREE.Vector3(...T(0, 0, 0.25)), color: o.color ?? 0xffd5a0, intensity: o.intensity ?? 3, range: o.range ?? 6, zone: b.zone, emissive: m, emissiveBase: 6, state: o.state || 'on' });
 }
 
 export function exitSign(b, x, y, z, rot, text = 'EXIT') {
@@ -92,7 +92,7 @@ export function exitSign(b, x, y, z, rot, text = 'EXIT') {
   s.position.set(...T(0, 0, 0.062));
   s.rotation.y = rot;
   b.add(s);
-  return b.level.game.lights.add({ type: 'sign', position: new THREE.Vector3(...T(0, -0.1, 0.25)), color: 0x40ff80, intensity: 0.5, range: 3, zone: b.zone, emissive: s.material, emissiveBase: 2.2, volScale: 2 });
+  return b.light({ type: 'sign', position: new THREE.Vector3(...T(0, -0.1, 0.25)), color: 0x40ff80, intensity: 0.5, range: 3, zone: b.zone, emissive: s.material, emissiveBase: 2.2, volScale: 2 });
 }
 
 export function sign(b, text, x, y, z, rot, w, h, o = {}) {
@@ -363,7 +363,7 @@ export function vending(b, x, z, rot, tex) {
   front.rotation.y = rot;
   b.add(front);
   b.box(0.16, 0.5, 0.02, T(0.33, 1.2, 0.41), { r: 'brushed' }, { rot: r });
-  return b.level.game.lights.add({ type: 'sign', position: new THREE.Vector3(...T(0, 1.1, 0.8)), color: 0xbfe8ff, intensity: 1.2, range: 4, zone: b.zone, emissive: mat, emissiveBase: 1.1, state: 'buzz' });
+  return b.light({ type: 'sign', position: new THREE.Vector3(...T(0, 1.1, 0.8)), color: 0xbfe8ff, intensity: 1.2, range: 4, zone: b.zone, emissive: mat, emissiveBase: 1.1, state: 'buzz' });
 }
 
 export function plant(b, x, z, o = {}) {

@@ -132,6 +132,7 @@ export class Game2 {
   async loadLevel(name, progress = () => {}) {
     if (this.level?.name === name) return this.level;
     this.ui.loading(true, 'loading');
+    this.loadingLevel = true;
     if (this.level) {
       this.level.dispose();
       this.lights.clear();
@@ -148,6 +149,7 @@ export class Game2 {
     });
     this.level = level;
     level.onReady?.();
+    this.loadingLevel = false;
     this.captureProbes();
     this.zone = null;
     this.ui.loading(false);
@@ -173,7 +175,7 @@ export class Game2 {
     const L = this.level;
     if (!L) return;
     const p = this.mode === 'play' || !this.director.controlsCamera ? this.player.pos.clone().setY(this.player.pos.y + 1) : this.camera.position;
-    const z = L.zoneAt(p) || this.zone || [...L.zones.values()][0];
+    const z = L.zoneAt(p, this.player.layer) || L.zoneAt(p) || this.zone || [...L.zones.values()][0];
     if (z !== this.zone || force) {
       const prev = this.zone;
       this.zone = z;
@@ -200,7 +202,11 @@ export class Game2 {
     const raw = Math.min(0.05, this.clock.getDelta());
     const dt = raw * (this.timeScale || 1);
     this.controls.poll(raw);
+    if (this.menus?.current && (this.paused || this.mode !== 'play')) this.menus.padNav(this.controls);
+    else if (this.chatting && this.mode !== 'play') this.pollPad();
+    if (this.mode === 'cutscene' && !this.paused && this.controls.padButton(9)) this.pause();
     if (!this.paused) this.update(dt);
+    if (this.loadingLevel) { this.controls.endFrame(); return; } // the bake gets the whole frame
     this.renderer.updateDynamic(raw);
     this.renderer.render(this.paused ? 0 : dt);
     this.controls.endFrame();
@@ -365,7 +371,7 @@ export class Game2 {
     }
     if (c.padButton(9)) { this.pause(); return; }
     if (this.ui.overlayOpen) { if (c.padButton(1) || c.padButton(0)) this.closeOverlay(); return; }
-    if (this.chatting) { if (c.padButton(1)) this.closeChat(); return; }
+    if (this.chatting) { this.ui.padChat(c); if (c.padButton(1)) this.closeChat(); return; }
     if (c.padButton(3) && this.canTalk()) this.openChat();
     if (c.padButton(2)) this.player.toggleFlashlight();
     if (c.padButton(4)) this.player.camcorder.toggle();
@@ -377,9 +383,10 @@ export class Game2 {
   }
 
   canTalk() {
+    const o = this.story.talkOverride?.();
+    if (o != null) return o;
     if (!this.state.flags.verityOut) return false;
     if (this.chase.active) return true; // it hears you wherever you are
-    if (this.story.talkOverride) return this.story.talkOverride();
     return this.verity.visible && !this.player.hidden && this.verity.mode === 'follow';
   }
 
@@ -464,6 +471,8 @@ export class Game2 {
   closeChat() {
     if (!this.chatting) return;
     this.chatting = false;
+    this.story.onCloseChat?.();
+    if (this.ui.chatInput) this.ui.chatInput.placeholder = 'Ask Verity anything…';
     this.input.enabled = true;
     this.player.canMove = true;
     this.ui.closeChat();
@@ -484,7 +493,7 @@ export class Game2 {
     this.ui.setChatBusy(true);
     this.ui.addYou(text);
     this.state.questions++;
-    const res = this.brain.respond(text, this.ctx());
+    const res = this.story.respond?.(text) || this.brain.respond(text, this.ctx());
     if (res.rude) this.state.rude++;
     if (res.kind) this.state.kind++;
     // talking while hiding gives you away
@@ -503,9 +512,10 @@ export class Game2 {
     }
     this.addInsanity(res.delta);
     const st = stageFor(this.state.insanity);
-    const reveal = this.ui.addVerity(res.text, st);
+    const reveal = this.ui.addVerity(res.name ? `${res.name}: ${res.text}` : res.text, res.who === 'falsity' ? 5 : st);
     const pos = this.chase.active && !res.flags.release ? this.monster.headWorld() : null;
-    await this.speak('verity', res.text, { onWord: reveal, noSub: true, position: pos });
+    const vo = (!res.who && this.story.voiceOpts?.(res)) || {};
+    await this.speak(vo.who || res.who || 'verity', res.text, { onWord: reveal, noSub: true, position: vo.position || res.position || pos, tv: vo.tv });
     this.busy = false;
     this.ui.setChatBusy(false);
     this.story.onAsk(res);

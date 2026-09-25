@@ -413,6 +413,13 @@ export class Pipeline {
     this.exposureReset = true;
     this.hero = null; // SpotLight used for volumetric shadows (the flashlight)
     this.volLights = []; // [{position, color(Vector3 already * intensity), range}]
+    // a real (1×1) depth texture so the shadow sampler is never bound to a colour texture
+    const dt = new THREE.DepthTexture(1, 1);
+    dt.compareFunction = THREE.LessEqualCompare;
+    this._dummyShadow = new THREE.WebGLRenderTarget(1, 1, { depthTexture: dt, depthBuffer: true });
+    renderer.setRenderTarget(this._dummyShadow);
+    renderer.clear();
+    renderer.setRenderTarget(null);
 
     // ---- artistic controls (Game / story drive these)
     this.p = {
@@ -453,7 +460,7 @@ export class Pipeline {
       uSteps: { value: 28 }, uMaxDist: { value: 30 }, uHistoryValid: { value: 0 }, uDensity: { value: 0.03 }, uHeightFalloff: { value: 0.2 },
       uBaseY: { value: 0 }, uNoiseAmt: { value: 0.7 }, uNoiseScale: { value: 0.35 }, uWind: { value: new THREE.Vector3() }, uAmbient: { value: new THREE.Vector3() },
       uSpotPos: { value: new THREE.Vector3() }, uSpotDir: { value: new THREE.Vector3(0, 0, -1) }, uSpotCol: { value: new THREE.Vector3() },
-      uSpotCos: { value: new THREE.Vector2(0.9, 0.95) }, uSpotRange: { value: 16 }, uSpotShadowOn: { value: 0 }, tSpotShadow: { value: null },
+      uSpotCos: { value: new THREE.Vector2(0.9, 0.95) }, uSpotRange: { value: 16 }, uSpotShadowOn: { value: 0 }, tSpotShadow: { value: this._dummyShadow.depthTexture },
       uSpotShadowMat: { value: new THREE.Matrix4() }, uCount: { value: 0 }, uLPos: { value: lpos }, uLCol: { value: lcol },
     });
     this.mCombine = mat(COMBINE_FRAG, {
@@ -617,7 +624,7 @@ export class Pipeline {
         u.uSpotCol.value.set(0, 0, 0);
         u.uSpotShadowOn.value = 0;
       }
-      if (!u.tSpotShadow.value) u.uSpotShadowOn.value = 0;
+      if (!u.tSpotShadow.value || u.tSpotShadow.value === this._dummyShadow.depthTexture) u.uSpotShadowOn.value = 0;
       const n = Math.min(MAX_LIGHTS, this.volLights.length);
       u.uCount.value = n;
       for (let i = 0; i < n; i++) {

@@ -210,8 +210,8 @@ void surface(vec2 uv, inout Surf s) {
   c = mix(c, cb, chipB);
   float strip = smoothstep(0.004, 0.0, min(abs(fract(uv.x * 2.0 + 0.5) - 0.5), abs(fract(uv.y * 2.0 + 0.5) - 0.5)));
   c = mix(c, vec3(0.55, 0.45, 0.3), strip);
-  vec3 cw = worley(uv, 3.0);
-  float crack = smoothstep(0.02, 0.0, cw.y - cw.x) * step(0.7, cw.z);
+  // a few hairline cracks, not a crazing network
+  float crack = smoothstep(0.012, 0.0, abs(fbm(uv, 5.0, 4) - 0.5)) * smoothstep(0.55, 0.7, fbm(uv + 3.1, 2.0, 3));
   float grime = smoothstep(0.35, 0.9, fbm(uv, 4.0, 5));
   c = mix(c, c * vec3(0.66, 0.6, 0.5), grime * 0.5);
   c *= 1.0 - crack * 0.5;

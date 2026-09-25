@@ -57,7 +57,7 @@ const DIRS = (() => {
   return out;
 })();
 
-export async function bakeVertexAO(targets, occluders, { radius = 0.9, strength = 1.0, budget = 12, onProgress } = {}) {
+export async function bakeVertexAO(targets, occluders, { radius = 0.9, strength = 1.0, budget = 40, onProgress } = {}) {
   // occluders: array of BufferGeometry in world space (merged into one BVH)
   if (!occluders.length || !targets.length) return;
   const merged = mergeForBVH(occluders);

@@ -29,6 +29,9 @@ export class Zone {
     this.ambience = o.ambience || null;
     this.envIntensity = o.envIntensity ?? 1;
     this.exposure = o.exposure ?? 1;
+    this.anyLayer = !!o.anyLayer;
+    this.matDefaults = o.mat || {};
+    this.outdoor = !!o.outdoor;
     this.probeAt = o.probe ? new THREE.Vector3(...o.probe) : new THREE.Vector3((o.x0 + o.x1) / 2, this.floorY + Math.min(1.6, (o.h ?? 3) * 0.55), (o.z0 + o.z1) / 2);
     this.probe = null;
     this.parts = new Map(); // material → geometries
@@ -66,9 +69,10 @@ export class Level {
     return z;
   }
 
-  zoneAt(p) {
+  zoneAt(p, layer = null) {
     let best = null, bestVol = Infinity;
     for (const z of this.zones.values()) {
+      if (layer != null && !z.anyLayer && z.layer !== layer) continue;
       if (!z.contains(p)) continue;
       const v = (z.max.x - z.min.x) * (z.max.z - z.min.z);
       if (v < bestVol) { best = z; bestVol = v; }
@@ -153,8 +157,17 @@ export class Level {
       z.parts.clear();
     }
     onProgress?.(0.05, 'batching');
+    if (this.game.debug) console.log('LOG aoTargets', aoTargets.length, aoTargets.reduce((n, g) => n + g.attributes.position.count, 0), 'occ', occ.reduce((n, g) => n + g.attributes.position.count, 0), [...this.zones.values()].map((z) => z.id + ':' + z.meshes.reduce((n, m) => n + m.geometry.attributes.position.count, 0)).join(' '));
     // 2. baked AO
-    if (ao) await bakeVertexAO(aoTargets, occ, { onProgress: (p) => onProgress?.(0.05 + p * 0.75, 'baking light') });
+    if (ao) {
+      const key = aoKey(this.name, aoTargets);
+      const cached = await cacheGet(key);
+      if (cached && applyAO(aoTargets, cached)) onProgress?.(0.8, 'baking light');
+      else {
+        await bakeVertexAO(aoTargets, occ, { onProgress: (p) => onProgress?.(0.05 + p * 0.75, 'baking light') });
+        cachePut(key, packAO(aoTargets));
+      }
+    }
     else aoTargets.forEach((g) => setFlatAO(g, 1));
     // 3. navigation
     this.nav = new NavGrid(this.colliders, this.bounds());
@@ -182,13 +195,84 @@ export class Level {
   }
 }
 
+// ---- baked AO cache (IndexedDB): the bake only runs the first time a level loads
+const AO_VERSION = 3;
+function aoKey(name, targets) {
+  let n = 0, h = 0;
+  for (const g of targets) {
+    const p = g.attributes.position.array;
+    n += p.length;
+    for (let i = 0; i < p.length; i += 97) h = (h * 31 + Math.round(p[i] * 100)) | 0;
+  }
+  return `ao:${AO_VERSION}:${name}:${n}:${h}`;
+}
+function packAO(targets) {
+  let n = 0;
+  for (const g of targets) n += g.attributes.aAO.count;
+  const out = new Uint8Array(n);
+  let o = 0;
+  for (const g of targets) { const a = g.attributes.aAO.array; for (let i = 0; i < a.length; i++) out[o++] = Math.round(a[i] * 255); }
+  return out;
+}
+function applyAO(targets, data) {
+  let n = 0;
+  for (const g of targets) n += g.attributes.position.count;
+  if (data.length !== n) return false;
+  let o = 0;
+  for (const g of targets) {
+    const ao = new Float32Array(g.attributes.position.count);
+    for (let i = 0; i < ao.length; i++) ao[i] = data[o++] / 255;
+    g.setAttribute('aAO', new THREE.BufferAttribute(ao, 1));
+  }
+  return true;
+}
+function idb() {
+  return new Promise((resolve) => {
+    try {
+      const r = indexedDB.open('verity2-cache', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => resolve(null);
+    } catch { resolve(null); }
+  });
+}
+async function cacheGet(key) {
+  const db = await idb();
+  if (!db) return null;
+  return new Promise((resolve) => {
+    try {
+      const q = db.transaction('kv').objectStore('kv').get(key);
+      q.onsuccess = () => resolve(q.result || null);
+      q.onerror = () => resolve(null);
+    } catch { resolve(null); }
+  });
+}
+async function cachePut(key, value) {
+  const db = await idb();
+  if (!db) return;
+  try {
+    const tx = db.transaction('kv', 'readwrite');
+    const st = tx.objectStore('kv');
+    // one entry per level: drop stale bakes
+    const prefix = key.split(':').slice(0, 3).join(':');
+    const c = st.openCursor();
+    c.onsuccess = () => { const cur = c.result; if (!cur) { st.put(value, key); return; } if (String(cur.key).startsWith(prefix)) cur.delete(); cur.continue(); };
+  } catch { /* ignore */ }
+}
+
 function normalizeAttrs(g) {
-  // merged geometries need identical attribute sets: position, normal, uv
-  let geo = g.index ? g.toNonIndexed() : g;
-  if (geo !== g) g.dispose();
+  // merged geometries need identical attribute sets (position, normal, uv)
+  // and must all be indexed; keep shared vertices shared (AO is per vertex)
+  const geo = g;
   for (const k of Object.keys(geo.attributes)) if (!['position', 'normal', 'uv'].includes(k)) geo.deleteAttribute(k);
   if (!geo.attributes.uv) geo.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(geo.attributes.position.count * 2), 2));
   if (!geo.attributes.normal) geo.computeVertexNormals();
+  if (!geo.index) {
+    const n = geo.attributes.position.count;
+    const idx = new (n > 65535 ? Uint32Array : Uint16Array)(n);
+    for (let i = 0; i < n; i++) idx[i] = i;
+    geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  }
   geo.morphAttributes = {};
   return geo;
 }
@@ -202,20 +286,36 @@ export class Builder {
     this.zone = zone;
     this.lib = level.lib;
     this.layer = zone.layer;
-    this.y = zone.floorY;
+    // coordinates passed to a builder are relative to the zone's floor
+    this.y = 0;
+    this.oy = zone.floorY;
+  }
+
+  // a light fixture at a floor-relative position
+  light(o) {
+    if (o.position) o.position = o.position.clone().setY(o.position.y + this.oy);
+    return this.level.game.lights.add({ zone: this.zone, ...o });
   }
 
   // material spec → material (zone-aware, vertex-AO enabled)
   M(spec) {
     if (spec?.isMaterial) return { mat: spec, world: spec.userData.world ?? 1 };
     const s = typeof spec === 'string' ? { r: spec } : spec;
-    const { r, ...opts } = s;
+    const { r, ...o2 } = s;
+    const opts = { ...this.zone.matDefaults, ...o2 };
     const mat = r === 'plain' ? this.lib.plain({ ...opts, zone: this.zone, vao: true }) : this.lib.get(r, { ...opts, zone: this.zone, vao: true });
     return { mat, world: (s.world ?? recipeWorld(r)) * (s.scale ?? 1), rot: s.uvRot || 0 };
   }
 
   // add world-space geometry with a material
   addGeo(geo, spec, matrix = null, flags = {}) {
+    if (this.noAO && flags.ao === undefined) flags = { ...flags, ao: false };
+    // small details don't need baked AO (screen-space AO covers them)
+    if (flags.ao === undefined) {
+      if (!geo.boundingBox) geo.computeBoundingBox();
+      const b = geo.boundingBox;
+      if (Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z) < 0.45) flags = { ...flags, ao: false };
+    }
     const { mat, world, rot } = this.M(spec);
     if (matrix) geo.applyMatrix4(matrix);
     if (!flags.keepUV) worldUV(geo, new THREE.Matrix4(), world, rot);
@@ -229,7 +329,7 @@ export class Builder {
   matrix(pos, rot = [0, 0, 0], scale) {
     _e.set(rot[0] || 0, rot[1] || 0, rot[2] || 0);
     _q.setFromEuler(_e);
-    return new THREE.Matrix4().compose(new THREE.Vector3(pos[0], pos[1], pos[2]), _q, scale ? new THREE.Vector3(...scale) : _s);
+    return new THREE.Matrix4().compose(new THREE.Vector3(pos[0], pos[1] + this.oy, pos[2]), _q, scale ? new THREE.Vector3(...scale) : _s);
   }
 
   // subdivided box (for AO resolution) — pos is the centre
@@ -351,5 +451,5 @@ export class Builder {
   }
 
   // Non-batched object (animated / interactive) placed in this zone.
-  add(obj) { this.zone.group.add(obj); return obj; }
+  add(obj) { obj.position.y += this.oy; this.zone.group.add(obj); return obj; }
 }

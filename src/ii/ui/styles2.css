@@ -131,3 +131,4 @@
 .logo2 .stamp { display: inline-block; margin-top: 18px; padding: 6px 14px; border: 3px solid rgba(201,55,44,.8); color: rgba(201,55,44,.9); font-family: var(--type); letter-spacing: .25em; transform: rotate(-4deg); font-size: 14px; }
 .menu-foot .kbd { opacity: .7; }
 .quality-note { font-family: var(--round); font-size: 12px; letter-spacing: .12em; color: rgba(231,225,211,.35); margin-top: 18px; }
+#subtitles { bottom: max(15vh, 118px); }

@@ -108,9 +108,9 @@ export function windowGlass(w, h) {
 export function skyDome(r = 120) {
   const m = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { uTime: SHARED.uTime, uFlash: { value: 0 } },
+    uniforms: { uTime: SHARED.uTime, uFlash: { value: 0 }, uDawn: { value: 0 } },
     vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
-    fragmentShader: `uniform float uTime, uFlash; varying vec3 vD;
+    fragmentShader: `uniform float uTime, uFlash, uDawn; varying vec3 vD;
       float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
       float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f); return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
       float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<5;i++){ s+=a*n(p); p*=2.03; a*=.5; } return s; }
@@ -122,6 +122,9 @@ export function skyDome(r = 120) {
         vec3 cloud = mix(vec3(0.02, 0.018, 0.016), vec3(0.09, 0.07, 0.055), 1.0 - smoothstep(0.0, 0.5, y));
         vec3 col = mix(base, cloud, smoothstep(0.35, 0.8, c));
         col += vec3(0.6, 0.65, 0.8) * uFlash * smoothstep(0.4, 0.9, c) * 0.8;
+        vec3 dawn = mix(vec3(1.4, 0.62, 0.3), vec3(0.18, 0.28, 0.5), smoothstep(0.0, 0.45, y));
+        dawn = mix(dawn, dawn * vec3(1.1, 0.9, 0.85), smoothstep(0.4, 0.8, c) * 0.5);
+        col = mix(col, dawn, uDawn);
         gl_FragColor = vec4(col, 1.0);
       }`,
   });
