@@ -83,7 +83,15 @@ export class Level {
     c.layer = c.layer ?? 0;
     this.colliders.push(c);
     this._hash = null;
+    this._walls = null;
     return c;
+  }
+
+  // wall colliders on a layer (cached) for line-of-sight tests
+  walls(layer = 0) {
+    this._walls = this._walls || new Map();
+    if (!this._walls.has(layer)) this._walls.set(layer, this.colliders.filter((c) => (c.layer ?? 0) === layer && (c.tag === 'wall' || c.tag?.startsWith('door'))));
+    return this._walls.get(layer);
   }
 
   // colliders near a point on a layer (spatial hash, rebuilt lazily)
@@ -231,7 +239,7 @@ export class Builder {
       ? new RoundedBoxGeometry(w, h, d, 2, Math.min(o.bevel, w / 2.1, h / 2.1, d / 2.1))
       : new THREE.BoxGeometry(w, h, d, Math.max(1, Math.ceil(w / seg)), Math.max(1, Math.ceil(h / seg)), Math.max(1, Math.ceil(d / seg)));
     this.addGeo(geo, spec, this.matrix(pos, o.rot), o);
-    if (o.collide) this.colliderBox(pos, w, d, o.rot?.[1] || 0, o.collide === true ? 'prop' : o.collide, o);
+    if (o.collide) this.colliderBox(pos, w, d, o.rot?.[1] || 0, o.collide === true || o.collide === 'low' ? 'prop' : o.collide, { ...o, low: o.collide === 'low' });
     return geo;
   }
 

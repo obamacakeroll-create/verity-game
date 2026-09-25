@@ -146,7 +146,7 @@ export class Player2 {
       this.pos.x += this.vel.x * dt;
       this.pos.z += this.vel.z * dt;
       const cols = g.level ? g.level.near(this.pos.x, this.pos.z, this.layer) : [];
-      resolveCircle(this.pos, RADIUS, cols.filter((c) => !c.low || !this.crouching));
+      resolveCircle(this.pos, RADIUS, cols);
       const ty = g.story?.heightAt?.(this.pos.x, this.pos.z, this.layer) ?? this.pos.y;
       this.pos.y = damp(this.pos.y, ty, 14, dt);
       const moved = Math.hypot(this.pos.x - before.x, this.pos.z - before.z);

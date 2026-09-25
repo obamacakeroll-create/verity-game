@@ -17,6 +17,7 @@ export class Renderer2 {
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFShadowMap;
     r.autoClear = true;
+    r.localClippingEnabled = true;
     this.canvas = r.domElement;
     this.canvas.id = 'game-canvas';
     this.canvas.tabIndex = 0;
