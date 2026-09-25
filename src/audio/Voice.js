@@ -26,7 +26,7 @@ export class Voice {
 
   async loadIntroClip() {
     try {
-      const res = await fetch('audio/verity_intro.mp3', { cache: 'no-cache' });
+      const res = await fetch(this.e.opts?.introClip || 'audio/verity_intro.mp3', { cache: 'no-cache' });
       const type = res.headers.get('content-type') || '';
       if (!res.ok || !/audio|mpeg|octet/.test(type)) return;
       const buf = await res.arrayBuffer();
@@ -41,8 +41,8 @@ export class Voice {
       const v = this.voices.find((x) => x.name === name);
       if (v) return v;
     }
-    const prefs = kind === 'verity'
-      ? [/google us english/i, /samantha/i, /zira/i, /aria/i, /jenny/i, /female/i, /karen/i, /moira/i]
+    const prefs = kind === 'verity' || kind === 'female'
+      ? (kind === 'female' ? [/google uk english female/i, /serena/i, /hazel/i, /susan/i, /libby/i, /moira/i, /karen/i, /female/i, /samantha/i] : [/google us english/i, /samantha/i, /zira/i, /aria/i, /jenny/i, /female/i, /karen/i, /moira/i])
       : [/google uk english male/i, /daniel/i, /david/i, /guy/i, /male/i, /fred/i];
     for (const re of prefs) {
       const v = en.find((x) => re.test(x.name));
@@ -116,14 +116,19 @@ export class Voice {
       const useTTS = mode === 'tts' && this.synth && this.voices.length > 0;
       if (who === 'verity' && stage >= 3) this._under = this.undervoice(est + 0.5, stage);
       if (!useTTS) {
-        if (who === 'verity' || !this.synth) this.babble(text, est, stage, who);
+        if (who === 'verity' || !this.synth || this.e.opts?.voices?.[who]?.synthOnly) this.babble(text, est, stage, who);
         setTimeout(finish, est * 1000 + 200);
         return;
       }
       const u = new SpeechSynthesisUtterance(text.replace(/[—–]/g, ', ').replace(/\.\.\./g, '…'));
       const v = this.pickVoice(who === 'verity' ? 'verity' : 'male');
       if (v) u.voice = v;
-      if (who === 'verity') {
+      const prof = this.e.opts?.voices?.[who];
+      if (prof) {
+        u.pitch = prof.pitch ?? 1; u.rate = (prof.rate ?? 1) * rateMul;
+        const pv = this.pickVoice(prof.voice || 'male');
+        if (pv) u.voice = pv;
+      } else if (who === 'verity') {
         u.pitch = Math.max(0.05, 1.75 - stage * 0.26);
         u.rate = (1.04 - stage * 0.045) * rateMul;
       } else if (who === 'marcus') {
@@ -201,7 +206,7 @@ export class Voice {
     const chars = text.replace(/[^a-z ]/gi, '');
     const syl = Math.max(2, Math.round(chars.replace(/ /g, '').length / 2.6));
     const step = dur / syl;
-    const base = who === 'verity' ? 330 - stage * 38 : 120;
+    const base = this.e.opts?.voices?.[who]?.babble ?? (who === 'verity' ? 330 - stage * 38 : 120);
     const g = ctx.createGain();
     g.gain.value = 0.9;
     const sh = ctx.createWaveShaper();

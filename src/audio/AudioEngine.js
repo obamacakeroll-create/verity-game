@@ -5,8 +5,9 @@ import { Voice } from './Voice.js';
 // Web Audio graph: buses → muffle filter → compressor → speakers.
 // Everything is synthesised; no audio files are required.
 export class AudioEngine {
-  constructor(settings) {
+  constructor(settings, opts = {}) {
     this.settings = settings;
+    this.opts = opts;
     this.ready = false;
     this.ctx = null;
     settings.on('change', (k) => { if (/Volume$/.test(k)) this.applyVolumes(); });

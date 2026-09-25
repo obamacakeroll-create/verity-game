@@ -3,57 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VERITY</title>
-    <meta name="description" content="VERITY — a first-person psychological horror game. Ask me anything. I know everything." />
+    <title>VERITY — select a game</title>
+    <meta name="description" content="VERITY and VERITY II: RETURNS — first-person psychological horror games. Ask me anything. I know everything." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Fredoka:wght@500;700&family=Special+Elite&display=swap" rel="stylesheet" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f2c21a'/%3E%3Cellipse cx='23' cy='25' rx='3.5' ry='6' fill='%23111'/%3E%3Cellipse cx='41' cy='25' rx='3.5' ry='6' fill='%23111'/%3E%3Cpath d='M17 38 Q32 52 47 38' stroke='%23111' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
   </head>
   <body>
-    <div id="app">
-      <div id="canvas-host"></div>
-      <div id="ui">
-        <div id="letterbox"><div class="bar top"></div><div class="bar bottom"></div></div>
-        <div id="hud" class="hidden">
-          <div id="objective"></div>
-          <div id="crosshair"></div>
-          <div id="prompt"></div>
-          <div id="insanity">
-            <canvas id="ins-face" width="96" height="96"></canvas>
-            <div class="ins-body">
-              <div class="label">INSANITY <span id="ins-value"></span></div>
-              <div class="track"><div class="fill"></div><div class="ticks"></div></div>
-            </div>
-            <div id="ins-delta"></div>
+    <main id="launcher">
+      <header>
+        <div class="kicker">hello i am verity · your personal helper friend</div>
+        <h1>choose a game</h1>
+      </header>
+      <section class="cards">
+        <a class="card" href="verity/" data-poster="one">
+          <canvas width="600" height="840"></canvas>
+          <div class="meta">
+            <div class="num">PART ONE</div>
+            <div class="name">VERITY</div>
+            <div class="blurb">1107 Wren Street, 2:57 AM. There is a box in the hallway you didn't pack.</div>
+            <div class="go">PLAY ›</div>
           </div>
-          <div id="meters">
-            <div id="stamina" class="meter"><div class="fill"></div></div>
-            <div id="battery" class="meter"><div class="fill"></div></div>
+        </a>
+        <a class="card" href="verity-ii/" data-poster="two">
+          <canvas width="600" height="840"></canvas>
+          <div class="meta">
+            <div class="num">PART TWO</div>
+            <div class="name">VERITY II <span>RETURNS</span></div>
+            <div class="blurb">Three days later, a box arrived on your new doorstep. It has a return address.</div>
+            <div class="go">PLAY ›</div>
           </div>
-          <div id="breath"><div class="label">HOLD YOUR BREATH</div><div class="meter"><div class="fill"></div></div></div>
-          <div id="talk-hint"></div>
-        </div>
-        <div id="chat" class="hidden">
-          <div id="chat-log"></div>
-          <form id="chat-form" autocomplete="off">
-            <span class="chat-caret">›</span>
-            <input id="chat-input" maxlength="160" autocomplete="off" spellcheck="false" placeholder="Ask Verity anything…" />
-            <span class="chat-help">Enter — ask · Tab — close</span>
-          </form>
-        </div>
-        <div id="subtitles"></div>
-        <div id="toast"></div>
-        <div id="chapter-card"><div class="num"></div><div class="title"></div><div class="sub"></div></div>
-        <div id="doc" class="hidden"></div>
-        <div id="choice" class="hidden"></div>
-        <div id="flash"></div>
-        <div id="fade"></div>
-        <div id="skip-hint">Hold <b>Space</b> to skip</div>
-        <div id="save-indicator">saving…</div>
-        <div id="menus"></div>
-      </div>
-    </div>
-    <script type="module" src="/src/main.js"></script>
+        </a>
+      </section>
+      <footer>
+        Headphones on. Lights off. Desktop browser with mouse and keyboard (a gamepad works in part two).<br />
+        <span id="progress"></span>
+      </footer>
+    </main>
+    <script type="module" src="/src/launcher/launcher.js"></script>
   </body>
 </html>

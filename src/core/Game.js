@@ -28,7 +28,7 @@ export class Game {
     this.save = new Save();
     this.renderer = new Renderer(document.getElementById('canvas-host'), this.settings);
     this.input = new Input(this.renderer.canvas, this.settings);
-    this.audio = new AudioEngine(this.settings);
+    this.audio = new AudioEngine(this.settings, { introClip: '../audio/verity_intro.mp3' });
     this.ui = new UI(this);
     this.mode = 'boot';
     this.paused = false;

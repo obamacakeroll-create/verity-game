@@ -120,6 +120,7 @@ export class Menus {
       ['Extras', () => this.push('extras')],
       ['Settings', () => this.push('settings')],
       ['Credits', () => this.push('credits')],
+      ['Game Select', () => { location.href = '../'; }],
     ]);
     const cp = g.save.data.checkpoint;
     const foot = document.createElement('div');
