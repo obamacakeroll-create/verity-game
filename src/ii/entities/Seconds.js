@@ -125,6 +125,18 @@ export class Seconds {
     return nv || inBeam || zoneLit || d < 2.2;
   }
 
+  // closed doors stop them (the nav grid ignores doors so the monster can path through)
+  doorBlocks(x, z, layer) {
+    const L = this.game.level, r = 0.3;
+    for (const c of L.near(x, z, layer)) {
+      if (!c.tag?.startsWith('door:')) continue;
+      const d = L.doors[c.tag.slice(5)];
+      if (!d || d.open > 0.5) continue;
+      if (x > c.minX - r && x < c.maxX + r && z > c.minZ - r && z < c.maxZ + r) return true;
+    }
+    return false;
+  }
+
   update(dt, frozen = false) {
     if (!this.list.length) return;
     const g = this.game;
@@ -158,11 +170,15 @@ export class Seconds {
           if (d < 0.2) s.path.shift();
           else {
             const step = Math.min(d, s.speed * (g.state.hard ? 1.25 : 1) * dt);
-            s.pos.x += (dx / d) * step;
-            s.pos.z += (dz / d) * step;
-            s.yaw = Math.atan2(dx, dz);
-            s.moved += step;
-            moving = true;
+            const nx = s.pos.x + (dx / d) * step, nz = s.pos.z + (dz / d) * step;
+            if (this.doorBlocks(nx, nz, s.layer)) { s.repath = 0.8; s.path = []; }
+            else {
+              s.pos.x = nx;
+              s.pos.z = nz;
+              s.yaw = Math.atan2(dx, dz);
+              s.moved += step;
+              moving = true;
+            }
           }
         }
         s.skitterT -= dt;
@@ -212,7 +228,7 @@ export class Seconds {
       }
       // contact
       const dP = Math.hypot(P.x - s.pos.x, P.z - s.pos.z);
-      if (s.active && dP < 0.65 && s.hitCooldown <= 0 && g.mode === 'play' && !g.player.hidden) {
+      if (s.active && !frozen && dP < 0.65 && s.hitCooldown <= 0 && g.mode === 'play' && !g.player.hidden) {
         s.hitCooldown = 4;
         g.story.secondsHit?.(s);
       }

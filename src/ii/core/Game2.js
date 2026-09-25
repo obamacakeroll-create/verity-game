@@ -230,8 +230,9 @@ export class Game2 {
       this.updateInteraction(dt);
       this.story.update(dt);
       this.events.update(dt);
-      this.chase.update(dt);
-      this.seconds.update(dt);
+      if (!this.ui.overlayOpen) this.chase.update(dt); // no deaths while a puzzle panel or note is open
+      // they can't creep up while a panel, note or chat covers the screen
+      this.seconds.update(dt, this.ui.overlayOpen || this.chatting);
       this.updateAmbientTalk(dt);
     } else if (this.mode === 'menu') {
       this.input.consumeMouse();

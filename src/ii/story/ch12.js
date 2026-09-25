@@ -443,7 +443,7 @@ export const Front = {
     }, { skippable: false, letterbox: false });
     g.seconds.setActive(true);
     this.music2();
-    g.ui.toast('Keep them in your light. They move when you look away — or when it’s dark.', 4.5);
+    g.ui.toast('Keep them in your light. They move when you look away or in the dark. Shut doors stop them.', 5);
     this.restoreObjective2();
     g.checkpoint();
   },
@@ -466,6 +466,8 @@ export const Front = {
       R.fuseSlot.visible = true;
       g.audio.sfx.play('fuse', { position: new THREE.Vector3(-15.7, 1.05, -27) });
       await g.sleep(0.5);
+      this.applyGrid(f.grid || defaultGrid());
+      if (g.verity.visible) g.speak('verity', 'Lights! In here they can’t move. Not while it’s bright.');
     }
     const sfx = (n) => g.audio.sfx.play(n === 'trip' ? 'powerDown' : n, { position: new THREE.Vector3(-15.7, 1.5, -27), volume: 0.8 });
     const result = await g.panel(breakerBoard({ grid: f.grid || defaultGrid(), sfx, onChange: (grid, tripped) => this.applyGrid(grid, tripped), hint: 'Everything off except MAIN draws twenty.' }));
@@ -480,7 +482,7 @@ export const Front = {
     const main = on('main');
     R.printLights.forEach((l, i) => { l.state = main && on('lights') ? (i % 4 === 1 ? 'flicker' : 'on') : 'off'; });
     R.benchLamp.state = main ? 'on' : 'off';
-    R.ctrlFluo.state = main ? 'flicker' : 'off';
+    R.ctrlFluo.state = main ? 'on' : 'off'; // steady: the control room is the safe, lit room
     R.printers.forEach((p, i) => { p.stopped = !main || !on(i < 5 ? 'printA' : 'printB'); });
     f.printersOff = R.printers.every((p) => p.stopped);
     R.gridLevers.forEach((lv, i) => {
